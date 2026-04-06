@@ -2,6 +2,8 @@
 
 Prompt injection detection for AI tool calls. Python port of [StackOneHQ/defender](https://github.com/StackOneHQ/defender) (Apache 2.0).
 
+> **Attribution:** This project is a derivative work of [StackOneHQ/defender](https://github.com/StackOneHQ/defender), a TypeScript prompt-injection detection library by [StackOne](https://www.stackone.com/). Ported to Python with the assistance of [Claude Code](https://docs.anthropic.com/en/docs/claude-code) (Anthropic).
+
 Two detection tiers: fast regex patterns (Tier 1) + ONNX MiniLM classifier (Tier 2).
 
 ## Install
@@ -87,4 +89,6 @@ uv run pytest -v  # 111 pass, 49 skipped (deferred stages)
 
 ## License
 
-Apache 2.0 — derived from [StackOneHQ/defender](https://github.com/StackOneHQ/defender).
+Apache 2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE).
+
+This project is a derivative work of [StackOneHQ/defender](https://github.com/StackOneHQ/defender) (Copyright 2024 StackOne), distributed under the same Apache 2.0 license terms.

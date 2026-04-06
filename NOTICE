@@ -1,0 +1,11 @@
+simple-defender-py
+Copyright 2025 LU Jialin
+
+This product is a derivative work of StackOneHQ/defender
+(https://github.com/StackOneHQ/defender), originally developed by
+StackOne and licensed under the Apache License, Version 2.0.
+
+Original work: Copyright 2024 StackOne
+
+This Python port was developed with the assistance of Claude Code
+(Anthropic).

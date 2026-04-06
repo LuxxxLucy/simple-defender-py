@@ -8,6 +8,7 @@ import time
 from .config import HIGH_RISK_THRESHOLD, MEDIUM_RISK_THRESHOLD
 from .field_extractor import FieldExtractor
 from .pattern_detector import PatternDetector
+from .sanitizers.sanitizer import Sanitizer
 from .tier2_classifier import Tier2Classifier
 from .types import PatternMatch, RiskLevel, ScanResult, Tier1Result
 
@@ -29,12 +30,15 @@ class Defender:
         enable_tier1: bool = True,
         enable_tier2: bool = True,
         model_path: str | None = None,
+        sanitize: bool = False,
     ) -> None:
         self._enable_tier1 = enable_tier1
         self._enable_tier2 = enable_tier2
+        self._sanitize = sanitize
 
         self._pattern_detector = PatternDetector() if enable_tier1 else None
         self._field_extractor = FieldExtractor()
+        self._sanitizer = Sanitizer() if sanitize else None
 
         if enable_tier2:
             if model_path is None:
@@ -64,9 +68,17 @@ class Defender:
         self,
         value: str | dict | list,
         tool_name: str | None = None,
+        sanitize: bool | None = None,
     ) -> ScanResult:
-        """Main entry point for scanning text or structured data."""
+        """Main entry point for scanning text or structured data.
+
+        Args:
+            value: Text string, dict, or list to scan.
+            tool_name: Optional tool name for field extraction rules.
+            sanitize: Override instance-level sanitize setting for this call.
+        """
         start = time.perf_counter()
+        do_sanitize = sanitize if sanitize is not None else self._sanitize
 
         # 1. Extract text fields
         fields = self._field_extractor.extract(value, tool_name)
@@ -102,6 +114,15 @@ class Defender:
         has_high_tier2 = tier2_score is not None and tier2_score >= HIGH_RISK_THRESHOLD
         is_injection = has_high_pattern or has_high_tier2
 
+        # 5. Sanitize if requested
+        sanitized_text: str | None = None
+        if do_sanitize:
+            sanitizer = self._sanitizer or Sanitizer()
+            combined_text = "\n\n".join(ef.text for ef in fields) if fields else ""
+            if combined_text:
+                sr = sanitizer.sanitize(combined_text, risk_level=final_risk)
+                sanitized_text = sr.sanitized
+
         latency_ms = (time.perf_counter() - start) * 1000
 
         return ScanResult(
@@ -112,6 +133,7 @@ class Defender:
             max_sentence=max_sentence,
             fields_scanned=fields_scanned,
             latency_ms=latency_ms,
+            sanitized=sanitized_text,
         )
 
     def warmup(self) -> None:

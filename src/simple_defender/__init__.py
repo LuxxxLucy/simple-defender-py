@@ -1,5 +1,14 @@
 from simple_defender.defender import Defender
-from simple_defender.types import ScanResult, PatternMatch, Tier1Result, Tier2Result, ExtractedField
+from simple_defender.types import (
+    ScanResult,
+    PatternMatch,
+    Tier1Result,
+    Tier2Result,
+    ExtractedField,
+    DataBoundary,
+    FieldSanitizationResult,
+    SanitizationMetadata,
+)
 from simple_defender.config import HIGH_RISK_THRESHOLD, MEDIUM_RISK_THRESHOLD
 
 __all__ = [
@@ -9,6 +18,9 @@ __all__ = [
     "Tier1Result",
     "Tier2Result",
     "ExtractedField",
+    "DataBoundary",
+    "FieldSanitizationResult",
+    "SanitizationMetadata",
     "HIGH_RISK_THRESHOLD",
     "MEDIUM_RISK_THRESHOLD",
 ]
