@@ -38,12 +38,27 @@ class Defender:
 
         if enable_tier2:
             if model_path is None:
-                model_path = os.path.join(
-                    os.path.dirname(__file__), "..", "..", "models", "minilm-full-aug"
-                )
-            self._tier2 = Tier2Classifier(model_path)
+                model_path = self._find_model_path()
+            if model_path is not None:
+                self._tier2 = Tier2Classifier(model_path)
+            else:
+                self._tier2 = None
         else:
             self._tier2 = None
+
+    @staticmethod
+    def _find_model_path() -> str | None:
+        """Search common locations for the ONNX model."""
+        candidates = [
+            # Relative to package source (dev layout)
+            os.path.join(os.path.dirname(__file__), "..", "..", "models", "minilm-full-aug"),
+            # Relative to cwd
+            os.path.join("models", "minilm-full-aug"),
+        ]
+        for p in candidates:
+            if os.path.isfile(os.path.join(p, "model_quantized.onnx")):
+                return os.path.abspath(p)
+        return None
 
     def scan(
         self,
