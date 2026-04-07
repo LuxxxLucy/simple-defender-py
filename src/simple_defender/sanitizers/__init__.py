@@ -29,8 +29,11 @@ from .role_stripper import (
 )
 from .sanitizer import (
     Sanitizer,
+    contains_boundary_patterns,
     create_sanitizer,
+    generate_boundary_instructions,
     generate_data_boundary,
+    generate_xml_boundary,
     sanitize_text,
     suggest_risk_level,
     wrap_with_boundary,
@@ -66,5 +69,8 @@ __all__ = [
     "sanitize_text",
     "suggest_risk_level",
     "generate_data_boundary",
+    "generate_xml_boundary",
+    "contains_boundary_patterns",
+    "generate_boundary_instructions",
     "wrap_with_boundary",
 ]

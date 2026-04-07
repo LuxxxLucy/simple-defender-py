@@ -50,6 +50,18 @@ class Defender:
         else:
             self._tier2 = None
 
+    @property
+    def tier1_enabled(self) -> bool:
+        return self._enable_tier1
+
+    @property
+    def tier2_enabled(self) -> bool:
+        return self._enable_tier2
+
+    @property
+    def model_loaded(self) -> bool:
+        return self._tier2 is not None and self._tier2.is_ready()
+
     @staticmethod
     def _find_model_path() -> str | None:
         """Search common locations for the ONNX model."""

@@ -27,9 +27,9 @@ def _create_app(defender: Defender | None = None) -> Starlette:
     async def health(request: Request) -> JSONResponse:
         return JSONResponse({
             "status": "ok",
-            "tier1": d._enable_tier1,
-            "tier2": d._enable_tier2,
-            "model_loaded": d._tier2 is not None and d._tier2.is_ready(),
+            "tier1": d.tier1_enabled,
+            "tier2": d.tier2_enabled,
+            "model_loaded": d.model_loaded,
         })
 
     async def scan(request: Request) -> JSONResponse:

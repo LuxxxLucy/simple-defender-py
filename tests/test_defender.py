@@ -156,3 +156,31 @@ class TestDefenderBothTiers:
     def test_raw_string_fields_scanned(self):
         r = self.d.scan("just a plain string")
         assert "_raw" in r.fields_scanned
+
+
+# ---------------------------------------------------------------------------
+# Public status API
+# ---------------------------------------------------------------------------
+
+class TestDefenderPublicAPI:
+    def test_tier1_enabled_default(self):
+        d = Defender(enable_tier2=False)
+        assert d.tier1_enabled is True
+
+    def test_tier1_disabled(self):
+        d = Defender(enable_tier1=False, enable_tier2=False)
+        assert d.tier1_enabled is False
+
+    def test_tier2_enabled_default(self):
+        d = Defender(enable_tier2=False)
+        assert d.tier2_enabled is False
+
+    def test_model_loaded_false_without_tier2(self):
+        d = Defender(enable_tier2=False)
+        assert d.model_loaded is False
+
+    @pytest.mark.skipif(not MODEL_AVAILABLE, reason="ONNX model not available")
+    def test_model_loaded_true_with_tier2(self):
+        d = Defender(model_path=MODEL_PATH)
+        d.warmup()
+        assert d.model_loaded is True

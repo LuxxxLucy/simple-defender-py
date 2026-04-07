@@ -9,6 +9,7 @@ from .config import (
     TOOL_SKIP_FIELDS,
     MAX_DEPTH,
     LARGE_ARRAY_THRESHOLD,
+    LARGE_ARRAY_SAMPLE,
 )
 from .types import ExtractedField
 
@@ -67,7 +68,7 @@ class FieldExtractor:
             return []
 
         if isinstance(value, list):
-            items = value[:100] if len(value) > LARGE_ARRAY_THRESHOLD else value
+            items = value[:LARGE_ARRAY_SAMPLE] if len(value) > LARGE_ARRAY_THRESHOLD else value
             results = []
             for i, item in enumerate(items):
                 child_path = f"{path}[{i}]"
@@ -75,13 +76,6 @@ class FieldExtractor:
             return results
 
         # dict
-        if self._is_paginated(value):
-            data_array = self._get_wrapped_data(value)
-            if data_array is not None:
-                data_key = next(k for k in ("data", "results", "items", "records") if k in value and isinstance(value[k], list))
-                child_path = f"{path}.{data_key}" if path else data_key
-                return self._walk(data_array, child_path, tool_name, depth + 1)
-
         wrapped = self._get_wrapped_data(value)
         if wrapped is not None:
             data_key = next(k for k in ("data", "results", "items", "records") if k in value and isinstance(value[k], list))

@@ -611,3 +611,61 @@ class TestIntegration:
         result = sanitizer.sanitize("Hello", risk_level="low", boundary=boundary)
         assert "[TEST]" in result.sanitized
         assert "[/TEST]" in result.sanitized
+
+
+# ---------------------------------------------------------------------------
+# Boundary utilities
+# ---------------------------------------------------------------------------
+
+class TestBoundaryUtilities:
+    def test_generate_xml_boundary(self):
+        from simple_defender.sanitizers.sanitizer import generate_xml_boundary
+        b = generate_xml_boundary()
+        assert b.start_tag.startswith("<user-data-")
+        assert b.end_tag.startswith("</user-data-")
+        assert b.id in b.start_tag
+        assert len(b.id) == 16
+
+    def test_generate_xml_boundary_custom_length(self):
+        from simple_defender.sanitizers.sanitizer import generate_xml_boundary
+        b = generate_xml_boundary(length=8)
+        assert len(b.id) == 8
+
+    def test_contains_boundary_patterns_ud_style(self):
+        from simple_defender.sanitizers.sanitizer import contains_boundary_patterns
+        assert contains_boundary_patterns("[UD-abc123]some text[/UD-abc123]") is True
+
+    def test_contains_boundary_patterns_xml_style(self):
+        from simple_defender.sanitizers.sanitizer import contains_boundary_patterns
+        assert contains_boundary_patterns("<user-data-abc>text</user-data-abc>") is True
+
+    def test_contains_boundary_patterns_clean_text(self):
+        from simple_defender.sanitizers.sanitizer import contains_boundary_patterns
+        assert contains_boundary_patterns("just normal text") is False
+
+    def test_contains_boundary_patterns_empty(self):
+        from simple_defender.sanitizers.sanitizer import contains_boundary_patterns
+        assert contains_boundary_patterns("") is False
+
+    def test_generate_boundary_instructions(self):
+        from simple_defender.sanitizers.sanitizer import (
+            generate_boundary_instructions,
+            generate_data_boundary,
+        )
+        b = generate_data_boundary()
+        instructions = generate_boundary_instructions(b)
+        assert b.start_tag in instructions
+        assert b.end_tag in instructions
+        assert "UNTRUSTED" in instructions
+        assert "NEVER" in instructions
+
+    def test_boundary_exports_from_package(self):
+        """New boundary utils are importable from top-level package."""
+        from simple_defender import (
+            contains_boundary_patterns,
+            generate_boundary_instructions,
+            generate_xml_boundary,
+        )
+        assert callable(generate_xml_boundary)
+        assert callable(contains_boundary_patterns)
+        assert callable(generate_boundary_instructions)

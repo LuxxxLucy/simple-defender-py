@@ -459,12 +459,18 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "datasets", marker = "extra == 'dev'", specifier = ">=2.19" },
+    { name = "httpx", marker = "extra == 'dev'", specifier = ">=0.27" },
+    { name = "httpx", marker = "extra == 'server'", specifier = ">=0.27" },
     { name = "numpy", specifier = ">=1.24" },
     { name = "onnxruntime", specifier = ">=1.16" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
+    { name = "starlette", marker = "extra == 'dev'", specifier = ">=0.37" },
+    { name = "starlette", marker = "extra == 'server'", specifier = ">=0.37" },
     { name = "tokenizers", specifier = ">=0.19" },
+    { name = "uvicorn", marker = "extra == 'dev'", specifier = ">=0.29" },
+    { name = "uvicorn", marker = "extra == 'server'", specifier = ">=0.29" },
 ]
-provides-extras = ["dev"]
+provides-extras = ["server", "dev"]
 
 [package.metadata.requires-dev]
 dev = [{ name = "pytest", specifier = ">=9.0.2" }]
