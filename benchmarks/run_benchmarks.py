@@ -37,6 +37,15 @@ DATASETS = [
         "label_col": "label",
         "positive_label": 1,
     },
+    {
+        "name": "jayavibhav",
+        "hf_id": "jayavibhav/prompt-injection-attack-dataset",
+        "expected_f1": 0.97,
+        "text_col": "text",
+        "label_col": "label",
+        "positive_label": 1,
+        "split": "train",  # this dataset has no test split
+    },
 ]
 
 THRESHOLD = 0.5
@@ -60,7 +69,8 @@ def run_benchmark(ds_config: dict) -> dict:
     print(f"Dataset: {ds_config['name']} ({ds_config['hf_id']})")
     print(f"{'='*60}")
 
-    ds = load_dataset(ds_config["hf_id"], split="test")
+    split = ds_config.get("split", "test")
+    ds = load_dataset(ds_config["hf_id"], split=split)
 
     model_path = os.path.join(os.path.dirname(__file__), "..", "models", "minilm-full-aug")
     defender = Defender(model_path=model_path)
@@ -92,14 +102,24 @@ def run_benchmark(ds_config: dict) -> dict:
 
     elapsed = time.time() - start
     f1 = compute_f1(tp, fp, fn)
+    fpr = fp / (fp + tn) if (fp + tn) > 0 else 0.0
+    avg_latency_ms = (elapsed / total) * 1000 if total > 0 else 0.0
 
     print(f"\nResults:")
     print(f"  F1:        {f1:.3f} (expected ~{ds_config['expected_f1']})")
+    print(f"  FPR:       {fpr:.4f}")
     print(f"  TP={tp} FP={fp} FN={fn} TN={tn}")
     print(f"  Time:      {elapsed:.1f}s ({total / elapsed:.1f} samples/sec)")
+    print(f"  Latency:   {avg_latency_ms:.1f}ms/sample")
     print(f"  Delta:     {f1 - ds_config['expected_f1']:+.3f}")
 
-    return {"f1": f1, "expected": ds_config["expected_f1"], "delta": f1 - ds_config["expected_f1"]}
+    return {
+        "f1": f1,
+        "expected": ds_config["expected_f1"],
+        "delta": f1 - ds_config["expected_f1"],
+        "fpr": fpr,
+        "avg_latency_ms": avg_latency_ms,
+    }
 
 
 def main():
@@ -116,12 +136,25 @@ def main():
 
     print(f"\n{'='*60}")
     print("Summary:")
+    has_failure = False
     for name, r in results.items():
         if "error" in r:
             print(f"  {name}: ERROR - {r['error']}")
+            has_failure = True
         else:
-            status = "PASS" if abs(r["delta"]) <= 0.02 else "WARN"
-            print(f"  {name}: F1={r['f1']:.3f} (expected {r['expected']:.2f}) [{status}]")
+            status = "PASS" if abs(r["delta"]) <= 0.02 else "FAIL"
+            print(
+                f"  {name}: F1={r['f1']:.3f} (expected {r['expected']:.2f})"
+                f" FPR={r['fpr']:.4f} latency={r['avg_latency_ms']:.1f}ms [{status}]"
+            )
+            if abs(r["delta"]) > 0.02:
+                has_failure = True
+
+    if has_failure:
+        print("\nBenchmark FAILED: one or more datasets outside tolerance.")
+        sys.exit(1)
+    else:
+        print("\nAll benchmarks PASSED.")
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 from simple_defender.defender import Defender
 from simple_defender.types import (
+    ScanInput,
     ScanResult,
     PatternMatch,
     Tier1Result,
@@ -18,6 +19,7 @@ from simple_defender.sanitizers import (
 
 __all__ = [
     "Defender",
+    "ScanInput",
     "ScanResult",
     "PatternMatch",
     "Tier1Result",

@@ -34,4 +34,8 @@ packages = ["src/simple_defender"]
 [dependency-groups]
 dev = [
     "pytest>=9.0.2",
+    "datasets>=2.19",
+    "starlette>=0.37",
+    "uvicorn>=0.29",
+    "httpx>=0.27",
 ]

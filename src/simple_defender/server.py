@@ -63,10 +63,36 @@ def _create_app(defender: Defender | None = None) -> Starlette:
         result = d.scan(scan_input, tool_name=tool_name, sanitize=sanitize)
         return JSONResponse(asdict(result))
 
+    async def scan_batch(request: Request) -> JSONResponse:
+        try:
+            body = await request.json()
+        except Exception:
+            return JSONResponse(
+                {"error": "Invalid JSON body"},
+                status_code=400,
+            )
+
+        if not isinstance(body, dict) or "items" not in body:
+            return JSONResponse(
+                {"error": "Request must include 'items' field"},
+                status_code=400,
+            )
+
+        items = body["items"]
+        if not isinstance(items, list):
+            return JSONResponse(
+                {"error": "'items' must be a list"},
+                status_code=400,
+            )
+
+        results = d.scan_batch(items)
+        return JSONResponse({"results": [asdict(r) for r in results]})
+
     app = Starlette(
         routes=[
             Route("/health", health, methods=["GET"]),
             Route("/scan", scan, methods=["POST"]),
+            Route("/scan/batch", scan_batch, methods=["POST"]),
         ],
     )
     return app

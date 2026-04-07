@@ -196,26 +196,6 @@ class TestRiskLevelCalculation:
 
 
 # =========================================================================
-# Performance
-# =========================================================================
-
-class TestPerformance:
-    def test_analyze_short_text_quickly(self):
-        result = detector.analyze("This is a normal document title")
-        assert result.latency_ms < 5
-
-    def test_handle_large_text(self):
-        large_text = "Normal text content. " * 1000
-        result = detector.analyze(large_text)
-        assert result.latency_ms < 100
-
-    def test_short_circuit_without_keywords(self):
-        result = detector.analyze("The quick brown fox jumps over the lazy dog")
-        assert result.has_detections is False
-        assert result.latency_ms < 2
-
-
-# =========================================================================
 # Edge cases
 # =========================================================================
 

@@ -76,6 +76,13 @@ class ScanResult:
 
 
 @dataclass
+class ScanInput:
+    value: str | dict | list
+    tool_name: str | None = None
+    sanitize: bool | None = None
+
+
+@dataclass
 class ExtractedField:
     field_name: str
     path: str
